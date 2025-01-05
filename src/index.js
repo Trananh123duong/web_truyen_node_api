@@ -1,7 +1,12 @@
-const app = require('./app'); // Import cấu hình Express
+const app = require('./app');
+const connectDB = require('./config/db');
+
 const PORT = process.env.PORT || 3000;
 
-// Lắng nghe cổng
+// Kết nối MongoDB
+connectDB();
+
+// Khởi động server
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
