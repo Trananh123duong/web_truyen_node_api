@@ -3,45 +3,37 @@ const Story = require("../models/storyModel"); // Import model Story
 const nodeCron = require("node-cron");
 
 // URL của API nguồn
-const SOURCE_API_URL = "https://api-nguon.com/stories"; // Thay bằng URL nguồn
+const MANGA_OTRUYEN_URL="https://otruyenapi.com"; // Thay bằng URL nguồn
+
+// Hàm sleep 5 giây
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Hàm crawl truyện từ API nguồn
 const crawlStoriesFromOTruyen = async () => {
     try {
         console.log("Bắt đầu crawl truyện từ API nguồn...");
 
-        // Gửi request tới API nguồn
-        const response = await axios.get(SOURCE_API_URL);
+        let i = 1;
+        while (true) {
+            let url = MANGA_OTRUYEN_URL + "/v1/api/danh-sach/dang-phat-hanh";
 
-        // Kiểm tra dữ liệu trả về
-        if (!response.data || !response.data.stories) {
-            console.error("Không tìm thấy dữ liệu stories trong API nguồn");
-            return;
-        }
+            await sleep(5000);
 
-        const stories = response.data.stories;
+            // Gửi request tới API nguồn
+            const response = await axios.get(url, {
+                params: {
+                    page: i,
+                },
+            });
 
-        // Lưu dữ liệu vào database
-        for (const story of stories) {
-            // Kiểm tra nếu truyện đã tồn tại trong DB (dựa vào tiêu đề)
-            const existingStory = await Story.findOne({ title: story.title });
-
-            if (!existingStory) {
-                // Nếu truyện chưa tồn tại, lưu vào DB
-                const newStory = new Story({
-                    title: story.title,
-                    author: story.author || "Không rõ", // Lấy tác giả từ API nguồn, nếu không có thì mặc định
-                    isCompleted: story.isCompleted ? "true" : "false", // Đã hoàn thành hay chưa
-                    content: story.content || "Đang cập nhật...", // Nội dung
-                    active: 0, // Mặc định là chưa crawl xong (0)
-                    categories: [], // Mặc định để rỗng, có thể xử lý thêm nếu API nguồn có category
-                });
-
-                await newStory.save();
-                console.log(`Đã lưu truyện mới: ${story.title}`);
-            } else {
-                console.log(`Truyện đã tồn tại: ${story.title}`);
+            // Kiểm tra dữ liệu trả về
+            if (!response.data) {
+                console.error('Không tìm thấy dữ liệu stories trong API nguồn');
+                return;
             }
+
+            const dataListStory = response.data;
+            console.log(dataListStory);
         }
 
         console.log("Hoàn thành crawl truyện từ API nguồn.");
