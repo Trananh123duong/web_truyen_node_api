@@ -6,10 +6,7 @@ const MONGO_URI = 'mongodb://admin:password@localhost:27017/web_truyen?authSourc
 // Hàm kết nối đến MongoDB
 const connectDB = async () => {
   try {
-    await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(MONGO_URI);
     console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error.message);
