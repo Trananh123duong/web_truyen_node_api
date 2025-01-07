@@ -26,14 +26,19 @@ const crawlStoriesFromOTruyen = async () => {
                 },
             });
 
-            // Kiểm tra dữ liệu trả về
-            if (!response.data) {
-                console.error('Không tìm thấy dữ liệu stories trong API nguồn');
-                return;
+            const dataListStory = response.data.data.items;
+            if (dataListStory.length == 0) {
+                break;
+            } else {
+                dataListStory.forEach(async (element, index) => {
+                    await crawlStory(MANGA_OTRUYEN_URL + "/v1/api/truyen-tranh/" +element.slug);
+                });
             }
 
-            const dataListStory = response.data;
-            console.log(dataListStory);
+            i++;
+            if (i > 5) {
+                i = 1;
+            }
         }
 
         console.log("Hoàn thành crawl truyện từ API nguồn.");
@@ -41,6 +46,24 @@ const crawlStoriesFromOTruyen = async () => {
         console.error("Lỗi khi crawl truyện:", error.message);
     }
 };
+
+const crawlStory = async (linkContent) => {
+    try {
+        await sleep(5000);
+        const response = await axios.get(linkContent);
+        const data = response.data.data.item;
+        
+        const isCompleted = data.status;
+        const listChapters = data.chapters[0].server_data;
+        const title = data.name;
+        const content = data.content;
+        const author = data.author.join(", ");
+
+        console.log(author);
+    } catch (error) {
+        console.error("Lỗi khi crawl truyện:", error.message);
+    }
+}
 
 // Tạo cron job chạy mỗi 6 giờ
 nodeCron.schedule("0 */6 * * *", () => {
