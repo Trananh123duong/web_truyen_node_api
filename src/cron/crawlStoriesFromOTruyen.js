@@ -122,9 +122,18 @@ const crawlStory = async (linkContent) => {
                 }
             })
         );
+
+        listChapters.forEach(async (dataChapter) => {
+            let chapterTitle = 'Chapter ' + dataChapter.chapter_name + (dataChapter.chapter_title ? ": " + dataChapter.chapter_title : '');
+            await crawlChapter(story._id, dataChapter.chapter_api_data, chapterTitle);
+        });
     } catch (error) {
         console.error("Lỗi khi crawl truyện:", error.message);
     }
+}
+
+const crawlChapter = async (storyId, linkContent, title) => {
+    console.log(storyId, linkContent, title);
 }
 
 // Tạo cron job chạy mỗi 6 giờ
