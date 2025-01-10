@@ -12,5 +12,5 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 
   // Chạy cron job ngay khi khởi động server
-  crawlStoriesFromOTruyen();
+  // crawlStoriesFromOTruyen();
 });

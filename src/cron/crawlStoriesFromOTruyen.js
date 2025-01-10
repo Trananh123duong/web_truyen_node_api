@@ -133,7 +133,24 @@ const crawlStory = async (linkContent) => {
 }
 
 const crawlChapter = async (storyId, linkContent, title) => {
-    console.log(storyId, linkContent, title);
+    let chapter = await Chapter.findOne({ title, story_id: storyId });
+
+    if (!chapter) {
+        console.log(`Thêm mới chap: ${title}`);
+
+        // Tạo mới chapter
+        chapter = new Chapter({
+            title,
+            story_id: storyId,
+        });
+        await chapter.save();
+    } else {
+        console.log(`Cập nhật thông tin chapter: ${title}`);
+
+        chapter.title = title;
+        chapter.story_id = storyId;
+        await chapter.save();
+    }
 }
 
 // Tạo cron job chạy mỗi 6 giờ
