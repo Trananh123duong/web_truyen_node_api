@@ -4,7 +4,29 @@ const Category = require('../models/categoryModel');
 // Lấy danh sách tất cả các stories
 const getAllStories = async (req, res) => {
   try {
-    const stories = await Story.find().populate('categories'); // Lấy thông tin đầy đủ của categories
+    // Lấy query parameters
+    const { keyword, active } = req.query;
+
+    // Tạo điều kiện tìm kiếm
+    let queryConditions = {};
+
+    // Nếu có keyword, tìm trong title và content
+    if (keyword) {
+      queryConditions.$or = [
+        { title: { $regex: keyword, $options: 'i' } }, // Tìm kiếm không phân biệt hoa thường
+        { content: { $regex: keyword, $options: 'i' } }
+      ];
+    }
+
+    // Nếu có active, kiểm tra với active trong DB
+    if (active) {
+      queryConditions.active = active;
+    }
+
+    // Thực hiện truy vấn với điều kiện
+    const stories = await Story.find(queryConditions)
+      .populate('categories', '_id name'); // Lấy thông tin của categories
+
     res.status(200).json({ success: true, data: stories });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -17,7 +39,7 @@ const getStoryById = async (req, res) => {
     const { id } = req.params;
     const story = await Story.findById(id).populate('categories');
     if (!story) {
-      return res.status(404).json({ success: false, message: 'Story not found' });
+      return res.status(404).json({ success: false, message: 'Story not found' }); 
     }
     res.status(200).json({ success: true, data: story });
   } catch (error) {
