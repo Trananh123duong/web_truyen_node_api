@@ -1,5 +1,7 @@
 const Story = require('../models/storyModel');
 const Category = require('../models/categoryModel');
+const Chapter = require('../models/chapterModel');
+
 
 // Lấy danh sách tất cả các stories
 const getAllStories = async (req, res) => {
@@ -37,11 +39,24 @@ const getAllStories = async (req, res) => {
 const getStoryById = async (req, res) => {
   try {
     const { id } = req.params;
-    const story = await Story.findById(id).populate('categories');
+
+    // Tìm kiếm story theo ID
+    const story = await Story.findById(id).populate('categories', '_id name');
+
     if (!story) {
-      return res.status(404).json({ success: false, message: 'Story not found' }); 
+      return res.status(404).json({ success: false, message: 'Story not found' });
     }
-    res.status(200).json({ success: true, data: story });
+
+    // Tìm chapters liên quan đến story
+    const chapters = await Chapter.find({ story_id: id }).select('_id title');
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ...story.toObject(),
+        chapters // Thêm danh sách chapters vào kết quả
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

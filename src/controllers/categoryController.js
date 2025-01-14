@@ -3,7 +3,7 @@ const Category = require('../models/categoryModel');
 // Lấy danh sách tất cả các categories
 const getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.find().populate('stories'); // Lấy đầy đủ thông tin stories
+    const categories = await Category.find().select('_id name'); // Lấy đầy đủ thông tin stories
     res.status(200).json({ success: true, data: categories });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

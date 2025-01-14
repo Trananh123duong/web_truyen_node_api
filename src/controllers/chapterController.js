@@ -4,7 +4,8 @@ const Story = require('../models/storyModel');
 // Lấy danh sách tất cả các chapters
 const getAllChapters = async (req, res) => {
   try {
-    const chapters = await Chapter.find().populate('story_id'); // Lấy đầy đủ thông tin của story liên quan
+    const { story_id } = req.query;
+    const chapters = await Chapter.find({ story_id: story_id }).populate('story_id'); // Lấy đầy đủ thông tin của story liên quan
     res.status(200).json({ success: true, data: chapters });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
